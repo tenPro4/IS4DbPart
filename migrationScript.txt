@@ -6,3 +6,8 @@ dotnet ef migrations script -i -c AppDbContext -s ..\TrickingLibrary.Api -o scri
 
 identity migrations & update
 dotnet ef migrations add -c ApiIdentityDbContext -o .\IdentityMigrations dotnet ef migrations script -i -c ApiIdentityDbContext -o script.sql dotnet ef database update -c ApiIdentityDbContext
+
+
+dotnet tool
+-add-migration Init -Context ContextName
+-update-database -Context ContextName
