@@ -78,8 +78,16 @@ namespace DatabasePart.Helpers
                                 healthQuery: $"SELECT TOP 1 * FROM dbo.[{dataProtectionTableName}]");
                         break;
                     case DatabaseProviderType.PostgreSQL:
+                        healthChecksBuilder
+                           .AddNpgSql(configurationDbConnectionString, name: "ConfigurationDb",
+                               healthQuery: $"SELECT * FROM \"{configurationTableName}\" LIMIT 1")
+                           .AddNpgSql(dataProtectionDbConnectionString, name: "DataProtectionDb",
+                               healthQuery: $"SELECT * FROM \"{dataProtectionTableName}\"  LIMIT 1");
                         break;
                     case DatabaseProviderType.MySql:
+                        healthChecksBuilder
+                           .AddMySql(configurationDbConnectionString, name: "ConfigurationDb")
+                           .AddMySql(dataProtectionDbConnectionString, name: "DataProtectionDb");
                         break;
                     default:
                         throw new NotImplementedException($"Health checks not defined for database provider {databaseProviderConfiguration.ProviderType}");
@@ -102,12 +110,12 @@ namespace DatabasePart.Helpers
                 case DatabaseProviderType.SqlServer:
                     services.RegisterSqlServerDbContexts<TDbContext, TDataProtectionDbContext>(connectionStrings, databaseMigrations);
                     break;
-                //case DatabaseProviderType.PostgreSQL:
-                //    services.RegisterNpgSqlDbContexts<TIdentityDbContext, TConfigurationDbContext, TPersistedGrantDbContext, TLogDbContext, TAuditLoggingDbContext, TDataProtectionDbContext, TAuditLog>(connectionStrings, databaseMigrations);
-                //    break;
-                //case DatabaseProviderType.MySql:
-                //    services.RegisterMySqlDbContexts<TIdentityDbContext, TConfigurationDbContext, TPersistedGrantDbContext, TLogDbContext, TAuditLoggingDbContext, TDataProtectionDbContext, TAuditLog>(connectionStrings, databaseMigrations);
-                //    break;
+                case DatabaseProviderType.PostgreSQL:
+                    services.RegisterNpgSqlDbContexts<TDbContext, TDataProtectionDbContext>(connectionStrings, databaseMigrations);
+                    break;
+                case DatabaseProviderType.MySql:
+                    services.RegisterMySqlDbContexts<TDbContext, TDataProtectionDbContext>(connectionStrings, databaseMigrations);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(databaseProvider.ProviderType), $@"The value needs to be one of {string.Join(", ", Enum.GetNames(typeof(DatabaseProviderType)))}.");
             }
